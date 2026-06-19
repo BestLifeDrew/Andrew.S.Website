@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sc₂C MXene Research — Andrew Smith</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #C0392B; --red-lt: #FDECEA; --red-mid: #E8574A;
+    --ink: #0A0A0A; --ink-2: #2C2C2C; --ink-3: #6B6B6B;
+    --rule: #DCDCDC; --bg: #F5F5F2; --white: #FFFFFF;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem; height: 52px;
+    background: var(--ink); border-bottom: 1px solid #222;
+  }
+  .nav-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--red-mid); text-decoration: none; }
+  .nav-back { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #888; text-decoration: none; transition: color 0.15s; }
+  .nav-back:hover { color: var(--white); }
+
+  .project-hero {
+    padding-top: 52px; background: var(--ink);
+    display: grid; grid-template-columns: 1fr 1fr; min-height: 60vh;
+  }
+  .ph-left {
+    padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center;
+    border-right: 1px solid #1E1E1E; position: relative; overflow: hidden;
+  }
+  .ph-left::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(192,57,43,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(192,57,43,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  .ph-right { padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
+  .ph-category { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red-mid); margin-bottom: 1rem; }
+  .ph-title { font-size: clamp(1.75rem, 3.5vw, 3rem); font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .ph-title strong { font-weight: 600; color: var(--red-mid); }
+  .ph-sub { font-size: 14px; color: #AAA; line-height: 1.75; max-width: 380px; }
+  .ph-badge { background: var(--red); color: var(--white); font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; width: fit-content; margin-bottom: 1rem; }
+  .ph-meta-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #222; }
+  .ph-meta-item { padding: 1rem 1.25rem; border-right: 1px solid #222; border-bottom: 1px solid #222; }
+  .ph-meta-item:nth-child(even) { border-right: none; }
+  .ph-meta-item:nth-last-child(-n+2) { border-bottom: none; }
+  .ph-meta-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #555; margin-bottom: 0.3rem; }
+  .ph-meta-val { font-size: 13px; color: var(--white); font-weight: 500; }
+
+  .project-body { max-width: 900px; margin: 0 auto; padding: 4rem 3rem; }
+  .pb-section { margin-bottom: 3.5rem; }
+  .pb-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+  .pb-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .pb-heading { font-size: 1.5rem; font-weight: 500; color: var(--ink); margin-bottom: 1rem; letter-spacing: -0.01em; }
+  .pb-text { font-size: 15px; color: var(--ink-2); line-height: 1.8; margin-bottom: 1rem; }
+
+  .formula-block {
+    background: var(--white); border: 1px solid var(--rule); border-left: 3px solid var(--red);
+    padding: 1.5rem; margin: 1.5rem 0; text-align: center;
+    font-size: 1.5rem; color: var(--ink); letter-spacing: 0.05em;
+    font-family: 'Times New Roman', serif;
+  }
+  .formula-caption { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; margin-top: 0.5rem; text-align: center; }
+
+  .spec-block { background: var(--white); border: 1px solid var(--rule); border-left: 3px solid var(--red); }
+  .spec-table { width: 100%; border-collapse: collapse; }
+  .spec-table tr { border-bottom: 1px solid var(--rule); }
+  .spec-table tr:last-child { border-bottom: none; }
+  .spec-table td { padding: 0.75rem 1rem; font-size: 13px; vertical-align: top; }
+  .spec-table td:first-child { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; width: 220px; }
+  .spec-table td:last-child { color: var(--ink-2); }
+
+  .workflow { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 1.5rem 0; }
+  .wf-step { background: var(--white); padding: 1.5rem; }
+  .wf-num { font-family: var(--mono); font-size: 10px; color: var(--red); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+  .wf-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 0.4rem; }
+  .wf-body { font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+
+  .citation-block {
+    background: #0D0D0D; border: 1px solid #222; border-left: 3px solid var(--red-mid);
+    padding: 1.5rem; margin: 1.5rem 0;
+    font-family: var(--mono); font-size: 12px; color: #AAA; line-height: 1.8;
+  }
+  .citation-block .cit-label { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red-mid); margin-bottom: 0.75rem; }
+
+  .tech-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .tech-tag { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--white); border: 1px solid var(--rule); padding: 3px 10px; letter-spacing: 0.04em; }
+
+  .paper-link {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    background: var(--ink); color: var(--white);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    text-decoration: none; padding: 12px 24px; border: 1px solid #333;
+    transition: background 0.2s;
+  }
+  .paper-link:hover { background: var(--red); border-color: var(--red); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid var(--red); padding: 10px 20px; transition: background 0.2s; }
+  .back-link:hover { background: var(--red); color: var(--white); }
+
+  .link-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+
+  footer { padding: 1.75rem 3rem; background: var(--ink); border-top: 1px solid #1E1E1E; display: flex; justify-content: space-between; align-items: center; }
+  .footer-copy { font-family: var(--mono); font-size: 10px; color: #555; letter-spacing: 0.05em; }
+  .footer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .project-hero { grid-template-columns: 1fr; }
+    .ph-left, .ph-right { padding: 2.5rem 1.25rem; }
+    .ph-left { border-right: none; border-bottom: 1px solid #1E1E1E; }
+    .project-body { padding: 2.5rem 1.25rem; }
+    .workflow { grid-template-columns: 1fr; }
+    footer { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">AS_ // EE</a>
+  <a class="nav-back" href="index.html">← Back to portfolio</a>
+</nav>
+
+<div class="project-hero">
+  <div class="ph-left">
+    <p class="ph-category">// Computational Materials Science · P.04</p>
+    <h1 class="ph-title">Electronic &amp; Structural<br>Properties of<br><strong>Sc₂C MXenes</strong></h1>
+    <p class="ph-sub">Published peer-reviewed computational research on two-dimensional scandium carbide MXenes using density functional theory.</p>
+  </div>
+  <div class="ph-right">
+    <span class="ph-badge">Published · JNPS · 2025</span>
+    <div class="ph-meta-grid">
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Institution</p>
+        <p class="ph-meta-val">Fayetteville State Univ.</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Journal</p>
+        <p class="ph-meta-val">J. Nepal Physical Soc.</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Duration</p>
+        <p class="ph-meta-val">Jan 2024 – Feb 2025</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Method</p>
+        <p class="ph-meta-val">DFT / GGA-PBE</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="project-body">
+
+  <div class="pb-section">
+    <p class="pb-label">Background</p>
+    <h2 class="pb-heading">What are MXenes?</h2>
+    <p class="pb-text">
+      MXenes are a family of two-dimensional transition metal carbides, nitrides, and carbonitrides discovered in 2011. They are derived by selectively etching the A-element layers from layered MAX phase precursor materials (M<sub>n+1</sub>AX<sub>n</sub>, where M is an early transition metal, A is a group IIIA or IVA element, and X is carbon or nitrogen), leaving behind atomically thin sheets.
+    </p>
+    <div class="formula-block">
+      Sc₂AlC → [HF etch] → Sc₂C + AlF₃
+      <p class="formula-caption">// MAX phase precursor etching to produce Sc₂C MXene</p>
+    </div>
+    <p class="pb-text">
+      MXenes exhibit a rare combination of metallic electrical conductivity, hydrophilicity (water compatibility), mechanical strength, and a tunable electronic band structure. These properties make them candidates for supercapacitor electrodes, electromagnetic interference (EMI) shielding, 2D electronics, and sensor applications. Sc₂C (scandium carbide MXene) is a particularly interesting member of the family due to its lightweight scandium backbone and predicted electronic properties.
+    </p>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Research Objectives</p>
+    <h2 class="pb-heading">What we set out to determine</h2>
+    <p class="pb-text">
+      The research focused on characterizing Sc₂C MXene computationally — without physical synthesis — using Density Functional Theory (DFT). The primary objectives were to determine the equilibrium crystal structure (lattice constants, bond lengths, atomic positions), compute the electronic band structure to classify metallic vs. semiconducting behavior, and analyze the density of states (DOS) to identify which atomic orbitals contribute to electronic properties near the Fermi level.
+    </p>
+    <div class="spec-block">
+      <table class="spec-table">
+        <tr><td>Material</td><td>Sc₂C — scandium carbide MXene, M₂X type</td></tr>
+        <tr><td>Structure</td><td>Hexagonal 2D lattice; Sc atoms sandwiching C layer</td></tr>
+        <tr><td>Key property</td><td>Electronic band structure and density of states near Fermi level</td></tr>
+        <tr><td>Methodology</td><td>DFT with GGA-PBE exchange-correlation functional</td></tr>
+        <tr><td>K-point mesh</td><td>Monkhorst-Pack grid; Γ-point centered</td></tr>
+        <tr><td>Software</td><td>VASP (Vienna Ab initio Simulation Package) + VESTA for visualization</td></tr>
+        <tr><td>Outcome</td><td>Published in Journal of Nepal Physical Society</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Methodology</p>
+    <h2 class="pb-heading">DFT computational workflow</h2>
+    <p class="pb-text">
+      All calculations were performed using the Vienna Ab initio Simulation Package (VASP), an industry-standard DFT code. The exchange-correlation energy was approximated using the Perdew-Burke-Ernzerhof (PBE) generalized gradient approximation (GGA). Projector augmented-wave (PAW) pseudopotentials were used to describe electron-core interactions.
+    </p>
+    <div class="workflow">
+      <div class="wf-step">
+        <p class="wf-num">// STEP 01</p>
+        <p class="wf-title">Structure Setup</p>
+        <p class="wf-body">Built the Sc₂C unit cell in VESTA — defining lattice vectors, atomic coordinates, and the 2D periodic boundary conditions (vacuum layer added perpendicular to the sheet to prevent interlayer coupling in periodic DFT).</p>
+      </div>
+      <div class="wf-step">
+        <p class="wf-num">// STEP 02</p>
+        <p class="wf-title">Geometry Optimization</p>
+        <p class="wf-body">Ran ionic relaxation in VASP (IBRION=2, NSW=100) to allow atoms to move to their minimum-energy positions. Iterated until forces on all atoms were below 0.01 eV/Å and total energy changes per step were below 10⁻⁵ eV.</p>
+      </div>
+      <div class="wf-step">
+        <p class="wf-num">// STEP 03</p>
+        <p class="wf-title">Electronic Structure</p>
+        <p class="wf-body">Performed a non-self-consistent field (NSCF) calculation on a high-symmetry k-path through the Brillouin zone (Γ-M-K-Γ) to generate the electronic band structure plot, revealing band crossings at the Fermi level.</p>
+      </div>
+      <div class="wf-step">
+        <p class="wf-num">// STEP 04</p>
+        <p class="wf-title">Density of States</p>
+        <p class="wf-body">Computed the total and projected density of states (TDOS/PDOS) to identify orbital contributions from Sc d-orbitals and C p-orbitals to the electronic properties. Visualized charge density distributions in VESTA.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Key Findings</p>
+    <h2 class="pb-heading">Results & significance</h2>
+    <p class="pb-text">
+      The DFT calculations revealed the equilibrium structural parameters of Sc₂C — including the optimized lattice constant and Sc–C bond lengths — consistent with prior theoretical predictions for MXene structures. The electronic band structure calculation showed bands crossing the Fermi level, indicating metallic character in the bare (unfunctionalized) Sc₂C MXene.
+    </p>
+    <p class="pb-text">
+      The density of states analysis revealed that electronic states near the Fermi level are dominated by Sc d-orbital contributions, with C p-orbitals contributing at lower binding energies. This orbital character has implications for the material's conductivity and its potential for surface functionalization chemistry — relevant to sensor and electrode applications.
+    </p>
+    <p class="pb-text">
+      Findings were first presented at the 2024 FSU Research Symposium, then revised and submitted for peer review, with the final paper published in the Journal of Nepal Physical Society in 2025.
+    </p>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Publication</p>
+    <h2 class="pb-heading">Peer-reviewed journal article</h2>
+    <div class="citation-block">
+      <p class="cit-label">// Citation</p>
+      Smith, A. et al. (2025). "Electronic and Structural Properties of Sc₂C MXenes."
+      <em>Journal of Nepal Physical Society</em>.
+      DOI: 10.3126/jnphyssoc.vXiY.72828
+    </div>
+    <div class="tech-tags">
+      <span class="tech-tag">VASP</span><span class="tech-tag">VESTA</span><span class="tech-tag">DFT</span><span class="tech-tag">GGA-PBE</span><span class="tech-tag">PAW Pseudopotentials</span><span class="tech-tag">Band Structure</span><span class="tech-tag">DOS/PDOS</span><span class="tech-tag">Sc₂C MXenes</span><span class="tech-tag">2D Materials</span>
+    </div>
+    <div class="link-row">
+      <a class="paper-link" href="https://www.nepjol.info/index.php/JNPhysSoc/article/view/72828" target="_blank" rel="noopener">Read full paper ↗</a>
+      <a class="back-link" href="index.html">← Back to portfolio</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p class="footer-copy">Andrew Smith · Project P.04 · Sc₂C MXene Research · JNPS 2025</p>
+  <div class="footer-dot"></div>
+</footer>
+</body>
+</html>

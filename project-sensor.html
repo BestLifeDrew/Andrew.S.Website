@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arduino Temp & Humidity Sensor — Andrew Smith</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #C0392B; --red-lt: #FDECEA; --red-mid: #E8574A;
+    --ink: #0A0A0A; --ink-2: #2C2C2C; --ink-3: #6B6B6B;
+    --rule: #DCDCDC; --bg: #F5F5F2; --white: #FFFFFF;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem; height: 52px;
+    background: var(--ink); border-bottom: 1px solid #222;
+  }
+  .nav-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--red-mid); text-decoration: none; }
+  .nav-back { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #888; text-decoration: none; transition: color 0.15s; display: flex; align-items: center; gap: 0.4rem; }
+  .nav-back:hover { color: var(--white); }
+
+  .project-hero {
+    padding-top: 52px; background: var(--ink);
+    display: grid; grid-template-columns: 1fr 1fr; min-height: 55vh;
+  }
+  .ph-left {
+    padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center;
+    border-right: 1px solid #1E1E1E; position: relative; overflow: hidden;
+  }
+  .ph-left::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(192,57,43,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(192,57,43,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  .ph-right { padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
+  .ph-category { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red-mid); margin-bottom: 1rem; }
+  .ph-title { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .ph-title strong { font-weight: 600; color: var(--red-mid); }
+  .ph-sub { font-size: 14px; color: #AAA; line-height: 1.75; max-width: 380px; }
+  .ph-meta-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #222; }
+  .ph-meta-item { padding: 1rem 1.25rem; border-right: 1px solid #222; border-bottom: 1px solid #222; }
+  .ph-meta-item:nth-child(even) { border-right: none; }
+  .ph-meta-item:nth-last-child(-n+2) { border-bottom: none; }
+  .ph-meta-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #555; margin-bottom: 0.3rem; }
+  .ph-meta-val { font-size: 13px; color: var(--white); font-weight: 500; }
+
+  .project-body { max-width: 900px; margin: 0 auto; padding: 4rem 3rem; }
+  .pb-section { margin-bottom: 3.5rem; }
+  .pb-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+  .pb-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .pb-heading { font-size: 1.5rem; font-weight: 500; color: var(--ink); margin-bottom: 1rem; letter-spacing: -0.01em; }
+  .pb-text { font-size: 15px; color: var(--ink-2); line-height: 1.8; margin-bottom: 1rem; }
+
+  .img-full { margin: 2rem 0; }
+  .img-full img { width: 100%; display: block; object-fit: cover; border: 1px solid var(--rule); }
+  .img-cap { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.05em; margin-top: 0.5rem; }
+
+  .spec-block { background: var(--white); border: 1px solid var(--rule); border-left: 3px solid var(--red); }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+  .spec-table tr { border-bottom: 1px solid var(--rule); }
+  .spec-table tr:last-child { border-bottom: none; }
+  .spec-table td { padding: 0.75rem 1rem; font-size: 13px; vertical-align: top; }
+  .spec-table td:first-child { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; width: 200px; }
+  .spec-table td:last-child { color: var(--ink-2); }
+
+  .circuit-diagram {
+    background: var(--white); border: 1px solid var(--rule); padding: 1.5rem;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-2);
+    line-height: 1.9; margin: 1.5rem 0; overflow-x: auto;
+  }
+  .circuit-diagram .pin { color: var(--red); font-weight: 600; }
+  .circuit-diagram .wire { color: #3A7BD5; }
+  .circuit-diagram .component { color: #27AE60; }
+
+  .code-block {
+    background: #0D0D0D; border: 1px solid #222; border-left: 3px solid var(--red-mid);
+    padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto;
+    font-family: var(--mono); font-size: 12px; color: #CCC; line-height: 1.7;
+  }
+  .code-comment { color: #555; }
+  .code-keyword { color: var(--red-mid); }
+  .code-string { color: #98C379; }
+  .code-func { color: #61AFEF; }
+
+  .tech-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .tech-tag { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--white); border: 1px solid var(--rule); padding: 3px 10px; letter-spacing: 0.04em; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid var(--red); padding: 10px 20px; transition: background 0.2s; }
+  .back-link:hover { background: var(--red); color: var(--white); }
+
+  footer { padding: 1.75rem 3rem; background: var(--ink); border-top: 1px solid #1E1E1E; display: flex; justify-content: space-between; align-items: center; }
+  .footer-copy { font-family: var(--mono); font-size: 10px; color: #555; letter-spacing: 0.05em; }
+  .footer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .project-hero { grid-template-columns: 1fr; }
+    .ph-left, .ph-right { padding: 2.5rem 1.25rem; }
+    .ph-left { border-right: none; border-bottom: 1px solid #1E1E1E; }
+    .project-body { padding: 2.5rem 1.25rem; }
+    footer { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">AS_ // EE</a>
+  <a class="nav-back" href="index.html">← Back to portfolio</a>
+</nav>
+
+<div class="project-hero">
+  <div class="ph-left">
+    <p class="ph-category">// Arduino · Sensors · P.02</p>
+    <h1 class="ph-title">Temp &amp; Humidity<br><strong>Sensor Station</strong></h1>
+    <p class="ph-sub">A real-time environmental monitoring station built from scratch — Arduino Uno, DHT11 sensor, 16×2 LCD, and firmware written in C++.</p>
+  </div>
+  <div class="ph-right">
+    <div class="ph-meta-grid">
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Platform</p>
+        <p class="ph-meta-val">Arduino Uno (ATmega328P)</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Sensor</p>
+        <p class="ph-meta-val">DHT11 (Temp + RH%)</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Display</p>
+        <p class="ph-meta-val">16×2 LCD w/ I2C</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Language</p>
+        <p class="ph-meta-val">C++ (Arduino)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="project-body">
+
+  <div class="pb-section">
+    <p class="pb-label">Overview</p>
+    <h2 class="pb-heading">Building a sensor system end to end</h2>
+    <p class="pb-text">
+      This project was a self-directed build designed to develop hands-on experience with sensor interfacing, display protocols, and real-time data processing on a microcontroller. The goal was to build a device that continuously reads ambient temperature and humidity from a DHT11 sensor and displays live readings on a 16×2 character LCD.
+    </p>
+    <p class="pb-text">
+      Rather than using high-level shields or plug-and-play modules, everything was wired manually on a breadboard with individual jumper wires — forcing a deep understanding of how each pin, voltage rail, and data line works. The result is a clean, stable sensor station capable of displaying both temperature in Fahrenheit and relative humidity percentage simultaneously.
+    </p>
+  </div>
+
+  <div class="img-full">
+    <img src="image__3_.webp" alt="Arduino temperature and humidity sensor station showing 81.68F and 42.20% on LCD">
+    <p class="img-cap">// Live sensor output — Temp: 81.68°F / Humidity: 42.20% — reading from DHT11 via Arduino Uno</p>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Hardware Architecture</p>
+    <h2 class="pb-heading">Component selection & wiring</h2>
+    <p class="pb-text">
+      The system uses an Arduino Uno as the MCU, which is built around the ATmega328P running at 16 MHz. The DHT11 is a capacitive humidity sensor that encodes temperature and humidity data in a single-wire serial protocol — the timing of each bit is measured in microseconds, which requires careful digital pin handling in firmware.
+    </p>
+    <p class="pb-text">
+      The 16×2 LCD is driven through an I2C backpack (PCF8574 I/O expander), which reduces the connection from 8+ parallel data/control lines down to just two wires (SDA + SCL). A 10kΩ potentiometer is wired to the LCD's contrast pin, enabling physical adjustment of the display brightness.
+    </p>
+    <div class="spec-block">
+      <table class="spec-table">
+        <tr><td>MCU</td><td>Arduino Uno — ATmega328P, 16 MHz, 5V logic</td></tr>
+        <tr><td>Sensor</td><td>DHT11 — measures 0–50°C ±2°C, 20–90% RH ±5%; single-wire protocol</td></tr>
+        <tr><td>Display</td><td>16×2 character LCD (HD44780 compatible) with PCF8574 I2C backpack</td></tr>
+        <tr><td>Interface</td><td>I2C (SDA → A4, SCL → A5) for LCD; Digital pin for DHT11 data</td></tr>
+        <tr><td>Contrast</td><td>10kΩ potentiometer wired to LCD V0 pin for physical adjustment</td></tr>
+        <tr><td>Power</td><td>5V via USB; 3.3V sensor logic regulated from Uno onboard regulator</td></tr>
+        <tr><td>Pull-up</td><td>4.7kΩ pull-up resistor on DHT11 data line to ensure logic-high idle state</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Pin Mapping</p>
+    <h2 class="pb-heading">Wiring connections</h2>
+    <div class="circuit-diagram">
+<span class="component">DHT11</span>  VCC  → <span class="pin">Arduino 5V</span><br>
+<span class="component">DHT11</span>  GND  → <span class="pin">Arduino GND</span><br>
+<span class="component">DHT11</span>  DATA → <span class="pin">Arduino D2</span>  <span class="wire">[+ 4.7kΩ pull-up to 5V]</span><br>
+<br>
+<span class="component">LCD I2C</span>  VCC → <span class="pin">Arduino 5V</span><br>
+<span class="component">LCD I2C</span>  GND → <span class="pin">Arduino GND</span><br>
+<span class="component">LCD I2C</span>  SDA → <span class="pin">Arduino A4 (SDA)</span><br>
+<span class="component">LCD I2C</span>  SCL → <span class="pin">Arduino A5 (SCL)</span><br>
+<br>
+<span class="component">Potentiometer</span> wiper → <span class="pin">LCD V0</span>  <span class="wire">[contrast control]</span>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Firmware</p>
+    <h2 class="pb-heading">C++ sensor polling & display loop</h2>
+    <p class="pb-text">
+      The firmware uses the DHT library for sensor timing and the LiquidCrystal_I2C library for display control. The main loop reads temperature and humidity values from the sensor every 2 seconds — the DHT11's minimum sampling interval — converts temperature to Fahrenheit, and refreshes both LCD lines.
+    </p>
+    <div class="code-block">
+<span class="code-comment">// Libraries</span>
+<span class="code-keyword">#include</span> &lt;DHT.h&gt;
+<span class="code-keyword">#include</span> &lt;LiquidCrystal_I2C.h&gt;
+
+<span class="code-keyword">#define</span> <span class="code-string">DHTPIN</span> 2
+<span class="code-keyword">#define</span> <span class="code-string">DHTTYPE</span> DHT11
+
+<span class="code-func">DHT</span> dht(DHTPIN, DHTTYPE);
+<span class="code-func">LiquidCrystal_I2C</span> lcd(<span class="code-string">0x27</span>, <span class="code-string">16</span>, <span class="code-string">2</span>);  <span class="code-comment">// I2C addr 0x27</span>
+
+<span class="code-keyword">void</span> <span class="code-func">setup</span>() {
+  dht.<span class="code-func">begin</span>();
+  lcd.<span class="code-func">init</span>();
+  lcd.<span class="code-func">backlight</span>();
+}
+
+<span class="code-keyword">void</span> <span class="code-func">loop</span>() {
+  <span class="code-keyword">float</span> humidity = dht.<span class="code-func">readHumidity</span>();
+  <span class="code-keyword">float</span> tempC    = dht.<span class="code-func">readTemperature</span>();
+  <span class="code-keyword">float</span> tempF    = tempC * <span class="code-string">9.0</span> / <span class="code-string">5.0</span> + <span class="code-string">32.0</span>;
+
+  <span class="code-keyword">if</span> (!isnan(humidity) && !isnan(tempF)) {
+    lcd.<span class="code-func">setCursor</span>(<span class="code-string">0</span>, <span class="code-string">0</span>);
+    lcd.<span class="code-func">print</span>(<span class="code-string">"Temp: "</span>);
+    lcd.<span class="code-func">print</span>(tempF, <span class="code-string">2</span>);
+    lcd.<span class="code-func">print</span>(<span class="code-string">"F"</span>);
+
+    lcd.<span class="code-func">setCursor</span>(<span class="code-string">0</span>, <span class="code-string">1</span>);
+    lcd.<span class="code-func">print</span>(<span class="code-string">"Humidity: "</span>);
+    lcd.<span class="code-func">print</span>(humidity, <span class="code-string">2</span>);
+    lcd.<span class="code-func">print</span>(<span class="code-string">"%"</span>);
+  }
+
+  delay(<span class="code-string">2000</span>);  <span class="code-comment">// DHT11 min sample interval</span>
+}
+    </div>
+    <p class="pb-text">
+      Error handling checks for NaN (Not a Number) returns from the DHT library, which occur when the sensor fails to respond within the expected timing window. This prevents garbage data from being written to the display. The LCD auto-refreshes in place each cycle without clearing the screen first, which avoids the visible flicker that <code>lcd.clear()</code> would cause.
+    </p>
+    <div class="tech-tags">
+      <span class="tech-tag">Arduino Uno</span><span class="tech-tag">C++</span><span class="tech-tag">DHT11</span><span class="tech-tag">I2C</span><span class="tech-tag">LiquidCrystal_I2C</span><span class="tech-tag">16×2 LCD</span><span class="tech-tag">Breadboard</span><span class="tech-tag">Potentiometer</span>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Key Learnings</p>
+    <h2 class="pb-heading">What this project taught</h2>
+    <p class="pb-text">
+      Beyond the hardware specifics, this build developed skills that carry directly into professional embedded systems work: reading datasheets to understand sensor communication protocols, managing I2C addresses, using pull-up resistors correctly, and writing firmware that gracefully handles sensor failures.
+    </p>
+    <p class="pb-text">
+      The DHT11's single-wire protocol — where 0s and 1s are encoded as time durations rather than voltage levels — was a practical introduction to timing-sensitive digital communication, a concept that underpins protocols like UART, SPI, and I2C at the hardware level.
+    </p>
+  </div>
+
+  <a class="back-link" href="index.html">← Back to portfolio</a>
+</div>
+
+<footer>
+  <p class="footer-copy">Andrew Smith · Project P.02 · Arduino Temp & Humidity Station</p>
+  <div class="footer-dot"></div>
+</footer>
+</body>
+</html>

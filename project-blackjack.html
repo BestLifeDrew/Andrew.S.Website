@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blackjack-21 Embedded System — Andrew Smith</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #C0392B; --red-lt: #FDECEA; --red-mid: #E8574A;
+    --ink: #0A0A0A; --ink-2: #2C2C2C; --ink-3: #6B6B6B;
+    --rule: #DCDCDC; --bg: #F5F5F2; --white: #FFFFFF;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem; height: 52px;
+    background: var(--ink); border-bottom: 1px solid #222;
+  }
+  .nav-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--red-mid); text-decoration: none; }
+  .nav-back {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #888; text-decoration: none; transition: color 0.15s;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .nav-back:hover { color: var(--white); }
+
+  /* PROJECT HERO */
+  .project-hero {
+    padding-top: 52px;
+    background: var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 60vh;
+  }
+  .ph-left {
+    padding: 4rem 3rem;
+    display: flex; flex-direction: column; justify-content: center;
+    border-right: 1px solid #1E1E1E;
+    position: relative; overflow: hidden;
+  }
+  .ph-left::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(192,57,43,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(192,57,43,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  .ph-right { padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
+  .ph-category { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red-mid); margin-bottom: 1rem; }
+  .ph-title { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .ph-title strong { font-weight: 600; color: var(--red-mid); }
+  .ph-sub { font-size: 14px; color: #AAA; line-height: 1.75; max-width: 380px; }
+  .ph-award {
+    background: #111; border: 1px solid #2A2A2A; border-left: 3px solid #F5C518;
+    padding: 1rem 1.25rem; display: flex; align-items: flex-start; gap: 0.75rem;
+  }
+  .ph-award-text { font-size: 13px; color: #AAA; line-height: 1.5; }
+  .ph-award-text strong { color: #F5C518; }
+  .ph-meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #222;
+  }
+  .ph-meta-item { padding: 1rem 1.25rem; border-right: 1px solid #222; border-bottom: 1px solid #222; }
+  .ph-meta-item:nth-child(even) { border-right: none; }
+  .ph-meta-item:nth-last-child(-n+2) { border-bottom: none; }
+  .ph-meta-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #555; margin-bottom: 0.3rem; }
+  .ph-meta-val { font-size: 13px; color: var(--white); font-weight: 500; }
+
+  /* CONTENT */
+  .project-body { max-width: 900px; margin: 0 auto; padding: 4rem 3rem; }
+  .pb-section { margin-bottom: 3.5rem; }
+  .pb-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+  .pb-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .pb-heading { font-size: 1.5rem; font-weight: 500; color: var(--ink); margin-bottom: 1rem; letter-spacing: -0.01em; }
+  .pb-text { font-size: 15px; color: var(--ink-2); line-height: 1.8; margin-bottom: 1rem; }
+  .pb-text:last-child { margin-bottom: 0; }
+
+  /* IMAGES */
+  .img-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+  .img-full { margin: 2rem 0; }
+  .img-full img, .img-grid-2 img {
+    width: 100%; display: block; object-fit: cover;
+    border: 1px solid var(--rule);
+  }
+  .img-cap { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.05em; margin-top: 0.5rem; }
+
+  /* SPEC TABLE */
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+  .spec-table tr { border-bottom: 1px solid var(--rule); }
+  .spec-table tr:last-child { border-bottom: none; }
+  .spec-table td { padding: 0.75rem 1rem; font-size: 13px; vertical-align: top; }
+  .spec-table td:first-child { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; width: 180px; }
+  .spec-table td:last-child { color: var(--ink-2); }
+  .spec-block { background: var(--white); border: 1px solid var(--rule); border-left: 3px solid var(--red); }
+
+  /* TECH TAGS */
+  .tech-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .tech-tag { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--white); border: 1px solid var(--rule); padding: 3px 10px; letter-spacing: 0.04em; }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #0D0D0D; border: 1px solid #222; border-left: 3px solid var(--red-mid);
+    padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto;
+    font-family: var(--mono); font-size: 12px; color: #CCC; line-height: 1.7;
+  }
+  .code-comment { color: #555; }
+  .code-keyword { color: var(--red-mid); }
+  .code-string { color: #98C379; }
+
+  /* BACK LINK */
+  .back-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid var(--red); padding: 10px 20px; transition: background 0.2s; }
+  .back-link:hover { background: var(--red); color: var(--white); }
+
+  footer { padding: 1.75rem 3rem; background: var(--ink); border-top: 1px solid #1E1E1E; display: flex; justify-content: space-between; align-items: center; }
+  .footer-copy { font-family: var(--mono); font-size: 10px; color: #555; letter-spacing: 0.05em; }
+  .footer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .project-hero { grid-template-columns: 1fr; min-height: auto; }
+    .ph-left, .ph-right { padding: 2.5rem 1.25rem; }
+    .ph-left { border-right: none; border-bottom: 1px solid #1E1E1E; }
+    .project-body { padding: 2.5rem 1.25rem; }
+    .img-grid-2 { grid-template-columns: 1fr; }
+    footer { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">AS_ // EE</a>
+  <a class="nav-back" href="index.html">← Back to portfolio</a>
+</nav>
+
+<div class="project-hero">
+  <div class="ph-left">
+    <p class="ph-category">// Embedded Systems · P.01</p>
+    <h1 class="ph-title">Blackjack-21<br><strong>Embedded System</strong></h1>
+    <p class="ph-sub">A fully hardware-wired Blackjack card game running on a microcontroller — no OS, no shortcuts. Built at MIT MITES Summer 2025.</p>
+  </div>
+  <div class="ph-right">
+    <div class="ph-award">
+      <span style="font-size:1.1rem;">🏆</span>
+      <p class="ph-award-text"><strong>Top Electronics Project</strong> — MIT MITES Summer 2025. Awarded among all projects in the embedded systems cohort.</p>
+    </div>
+    <div class="ph-meta-grid">
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Program</p>
+        <p class="ph-meta-val">MIT MITES Summer</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Location</p>
+        <p class="ph-meta-val">Cambridge, MA</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Date</p>
+        <p class="ph-meta-val">Summer 2025</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Result</p>
+        <p class="ph-meta-val">Top Electronics Prize</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="project-body">
+
+  <div class="pb-section">
+    <p class="pb-label">Overview</p>
+    <h2 class="pb-heading">A card game with real hardware constraints</h2>
+    <p class="pb-text">
+      As part of MIT MITES Summer 2025 — a six-week residential engineering program at MIT — I designed and built a fully functional Blackjack card game implemented on a microcontroller. The entire system runs on bare metal: no operating system, no high-level frameworks. All game logic, display rendering, and input handling were programmed in C, directly addressing hardware registers.
+    </p>
+    <p class="pb-text">
+      The project demanded integrating three major subsystems: a color TFT display driven over SPI, physical push-button inputs wired to GPIO pins, and a pseudo-random number generator seeded from an analog pin for card draws. Each subsystem had to work reliably together in real time.
+    </p>
+  </div>
+
+  <div class="img-grid-2">
+    <div>
+      <img src="IMG_2477.webp" alt="Blackjack breadboard — top view showing full circuit layout">
+      <p class="img-cap">// Full breadboard layout — microcontroller, TFT display, and button inputs</p>
+    </div>
+    <div>
+      <img src="IMG_2479.webp" alt="Blackjack system connected to laptop for serial monitor">
+      <p class="img-cap">// Serial monitor output showing live game state during testing</p>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Hardware Architecture</p>
+    <h2 class="pb-heading">System components & wiring</h2>
+    <p class="pb-text">
+      The system was built on two linked breadboards to accommodate the wiring complexity. A microcontroller (STM32/Arduino-compatible) served as the central processing unit, with all peripherals connected via jumper wires — no PCB, no shields. This approach forced careful attention to power distribution, signal integrity, and pin conflict resolution.
+    </p>
+    <div class="spec-block">
+      <table class="spec-table">
+        <tr><td>MCU</td><td>Microcontroller with 5V GPIO, analog pins, and SPI/I2C support</td></tr>
+        <tr><td>Display</td><td>2.2" color TFT LCD (ILI9341 driver) — SPI interface, 240×320 resolution</td></tr>
+        <tr><td>Inputs</td><td>2× momentary push buttons (Hit / Stand) — debounced in firmware</td></tr>
+        <tr><td>RNG Seed</td><td>Floating analog pin read at boot to seed pseudo-random card draws</td></tr>
+        <tr><td>Power</td><td>USB 5V; onboard 3.3V regulator for display logic</td></tr>
+        <tr><td>Interface</td><td>SPI for display, digital GPIO for buttons, UART for debug output</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Firmware & Game Logic</p>
+    <h2 class="pb-heading">C programming on bare metal</h2>
+    <p class="pb-text">
+      The firmware was written entirely in C. The game loop handles card dealing, score calculation, dealer AI logic, and display refresh in a single-threaded execution model. Button inputs are polled each loop iteration with software debouncing — a short delay after detecting a falling edge prevents multiple triggers from mechanical bounce.
+    </p>
+    <div class="code-block">
+<span class="code-comment">// Card draw with pseudo-random seed from analog noise</span>
+<span class="code-keyword">int</span> drawCard() {
+  <span class="code-keyword">return</span> (rand() % <span class="code-string">13</span>) + <span class="code-string">1</span>;  <span class="code-comment">// 1–13 (Ace through King)</span>
+}
+
+<span class="code-comment">// Dealer AI: must hit until score >= 17</span>
+<span class="code-keyword">while</span> (dealerScore < <span class="code-string">17</span>) {
+  dealerScore += cardValue(drawCard());
+}
+
+<span class="code-comment">// Debounce helper</span>
+<span class="code-keyword">bool</span> buttonPressed(<span class="code-keyword">int</span> pin) {
+  <span class="code-keyword">if</span> (!digitalRead(pin)) {
+    delay(<span class="code-string">50</span>);
+    <span class="code-keyword">return</span> !digitalRead(pin);
+  }
+  <span class="code-keyword">return false</span>;
+}
+    </div>
+    <p class="pb-text">
+      Display rendering was handled by writing pixel data to the TFT over SPI. Card values, score totals, and win/loss outcomes were rendered as text using a custom character drawing routine. The scoreboard visible on the display tracks multiple players' hand totals simultaneously.
+    </p>
+    <div class="tech-tags">
+      <span class="tech-tag">C</span><span class="tech-tag">Bare Metal</span><span class="tech-tag">SPI</span><span class="tech-tag">GPIO</span><span class="tech-tag">UART Debug</span><span class="tech-tag">TFT ILI9341</span><span class="tech-tag">Software Debounce</span><span class="tech-tag">RNG</span>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Context</p>
+    <h2 class="pb-heading">MIT MITES Summer 2025</h2>
+    <p class="pb-text">
+      MIT MITES (Minority Introduction to Engineering and Science) is a six-week residential summer program run by MIT's Office of Engineering Outreach Programs. The program admits approximately 80 students nationally each year (roughly 3% acceptance) from underrepresented backgrounds to study advanced STEM subjects on the MIT campus.
+    </p>
+    <p class="pb-text">
+      The embedded systems track covered digital logic, microcontroller architecture, C programming, and hardware interfacing. The Blackjack-21 project was the capstone build, evaluated by MIT instructors across all electronics projects in the cohort. The award for Top Electronics Project recognized the system's hardware complexity, clean firmware logic, and complete playable functionality.
+    </p>
+    <img src="1772378091775.jpg" alt="Andrew receiving award at MIT MITES" style="width:100%; display:block; border: 1px solid var(--rule); margin-top: 1.5rem;">
+    <p class="img-cap" style="margin-top:0.5rem;">// MITES Summer 2025 — award ceremony, MIT campus</p>
+  </div>
+
+  <a class="back-link" href="index.html">← Back to portfolio</a>
+</div>
+
+<footer>
+  <p class="footer-copy">Andrew Smith · Project P.01 · Blackjack-21 Embedded System</p>
+  <div class="footer-dot"></div>
+</footer>
+</body>
+</html>

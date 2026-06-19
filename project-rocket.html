@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>American Rocketry Challenge — Andrew Smith</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #C0392B; --red-lt: #FDECEA; --red-mid: #E8574A;
+    --ink: #0A0A0A; --ink-2: #2C2C2C; --ink-3: #6B6B6B;
+    --rule: #DCDCDC; --bg: #F5F5F2; --white: #FFFFFF;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'IBM Plex Sans', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem; height: 52px;
+    background: var(--ink); border-bottom: 1px solid #222;
+  }
+  .nav-logo { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--red-mid); text-decoration: none; }
+  .nav-back { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: #888; text-decoration: none; transition: color 0.15s; }
+  .nav-back:hover { color: var(--white); }
+
+  .project-hero {
+    padding-top: 52px; background: var(--ink);
+    display: grid; grid-template-columns: 1fr 1fr; min-height: 60vh;
+  }
+  .ph-left {
+    padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center;
+    border-right: 1px solid #1E1E1E; position: relative; overflow: hidden;
+  }
+  .ph-left::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(192,57,43,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(192,57,43,0.04) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  .ph-right { padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
+  .ph-category { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red-mid); margin-bottom: 1rem; }
+  .ph-title { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; color: var(--white); line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .ph-title strong { font-weight: 600; color: var(--red-mid); }
+  .ph-sub { font-size: 14px; color: #AAA; line-height: 1.75; max-width: 380px; }
+  .ph-meta-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #222; }
+  .ph-meta-item { padding: 1rem 1.25rem; border-right: 1px solid #222; border-bottom: 1px solid #222; }
+  .ph-meta-item:nth-child(even) { border-right: none; }
+  .ph-meta-item:nth-last-child(-n+2) { border-bottom: none; }
+  .ph-meta-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #555; margin-bottom: 0.3rem; }
+  .ph-meta-val { font-size: 13px; color: var(--white); font-weight: 500; }
+
+  .project-body { max-width: 900px; margin: 0 auto; padding: 4rem 3rem; }
+  .pb-section { margin-bottom: 3.5rem; }
+  .pb-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; }
+  .pb-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .pb-heading { font-size: 1.5rem; font-weight: 500; color: var(--ink); margin-bottom: 1rem; letter-spacing: -0.01em; }
+  .pb-text { font-size: 15px; color: var(--ink-2); line-height: 1.8; margin-bottom: 1rem; }
+
+  .img-full { margin: 2rem 0; }
+  .img-full img { width: 100%; display: block; object-fit: cover; border: 1px solid var(--rule); }
+  .img-cap { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.05em; margin-top: 0.5rem; }
+
+  .img-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+  .img-grid-2 img { width: 100%; display: block; object-fit: cover; border: 1px solid var(--rule); }
+
+  .spec-block { background: var(--white); border: 1px solid var(--rule); border-left: 3px solid var(--red); }
+  .spec-table { width: 100%; border-collapse: collapse; }
+  .spec-table tr { border-bottom: 1px solid var(--rule); }
+  .spec-table tr:last-child { border-bottom: none; }
+  .spec-table td { padding: 0.75rem 1rem; font-size: 13px; vertical-align: top; }
+  .spec-table td:first-child { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; width: 200px; }
+  .spec-table td:last-child { color: var(--ink-2); }
+
+  .design-steps { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--rule); background: var(--white); margin: 1.5rem 0; }
+  .design-step { display: grid; grid-template-columns: 60px 1fr; gap: 1.5rem; padding: 1.5rem; border-bottom: 1px solid var(--rule); align-items: start; }
+  .design-step:last-child { border-bottom: none; }
+  .step-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 600; color: var(--red); line-height: 1; padding-top: 2px; }
+  .step-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 0.4rem; }
+  .step-body { font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+
+  .arc-rule {
+    background: var(--ink); color: var(--white); padding: 1.5rem; margin: 1.5rem 0;
+    border-left: 3px solid var(--red-mid); font-family: var(--mono); font-size: 12px; line-height: 1.9;
+  }
+  .arc-rule .rule-head { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red-mid); margin-bottom: 0.75rem; }
+  .arc-rule .rule-line { color: #CCC; border-bottom: 1px solid #1E1E1E; padding: 0.4rem 0; }
+  .arc-rule .rule-line span { color: var(--red-mid); }
+
+  .tech-tags { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .tech-tag { font-family: var(--mono); font-size: 10px; color: var(--ink-2); background: var(--white); border: 1px solid var(--rule); padding: 3px 10px; letter-spacing: 0.04em; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid var(--red); padding: 10px 20px; transition: background 0.2s; }
+  .back-link:hover { background: var(--red); color: var(--white); }
+
+  footer { padding: 1.75rem 3rem; background: var(--ink); border-top: 1px solid #1E1E1E; display: flex; justify-content: space-between; align-items: center; }
+  .footer-copy { font-family: var(--mono); font-size: 10px; color: #555; letter-spacing: 0.05em; }
+  .footer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .project-hero { grid-template-columns: 1fr; }
+    .ph-left, .ph-right { padding: 2.5rem 1.25rem; }
+    .ph-left { border-right: none; border-bottom: 1px solid #1E1E1E; }
+    .project-body { padding: 2.5rem 1.25rem; }
+    .img-grid-2 { grid-template-columns: 1fr; }
+    .design-step { grid-template-columns: 40px 1fr; gap: 1rem; }
+    footer { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">AS_ // EE</a>
+  <a class="nav-back" href="index.html">← Back to portfolio</a>
+</nav>
+
+<div class="project-hero">
+  <div class="ph-left">
+    <p class="ph-category">// Rocketry · ARC · P.03</p>
+    <h1 class="ph-title">American<br><strong>Rocketry Challenge</strong></h1>
+    <p class="ph-sub">Designed, simulated, and launched a single-stage model rocket competing in the world's largest student rocketry competition.</p>
+  </div>
+  <div class="ph-right">
+    <div class="ph-meta-grid">
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Competition</p>
+        <p class="ph-meta-val">ARC — National</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Team</p>
+        <p class="ph-meta-val">IECHS Rocketry</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Location</p>
+        <p class="ph-meta-val">Fayetteville, NC</p>
+      </div>
+      <div class="ph-meta-item">
+        <p class="ph-meta-label">Season</p>
+        <p class="ph-meta-val">2024 – 2025</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="project-body">
+
+  <div class="pb-section">
+    <p class="pb-label">Overview</p>
+    <h2 class="pb-heading">The world's largest student rocket competition</h2>
+    <p class="pb-text">
+      The American Rocketry Challenge (ARC) is a national competition organized by the Aerospace Industries Association and the National Association of Rocketry. Over 5,000 students from across the United States compete annually to design, build, and launch model rockets that must reach a precise target altitude — within a narrow scoring window — and return safely with an egg payload intact.
+    </p>
+    <p class="pb-text">
+      As a member of the IECHS rocketry team, I was involved in the full engineering design cycle: from initial concept sketches and fin geometry selection, through computer simulation and motor selection, to physical construction and live launch. Every decision — from airframe diameter to fin sweep angle — had measurable consequences at the launch pad.
+    </p>
+  </div>
+
+  <div class="img-full">
+    <img src="image__2_.webp" alt="Model rocket on launch pad at a baseball field in Fayetteville NC">
+    <p class="img-cap">// Team rocket on the launch pad — Fayetteville, NC · 2025 season</p>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Competition Rules</p>
+    <h2 class="pb-heading">ARC design constraints</h2>
+    <p class="pb-text">
+      ARC imposes strict engineering constraints that the rocket must satisfy — not just performance targets. These rules drive every design decision and require iterative simulation to balance competing requirements.
+    </p>
+    <div class="arc-rule">
+      <p class="rule-head">// ARC 2024–25 Key Requirements</p>
+      <p class="rule-line">Mass ............. <span>must not exceed 650 g at liftoff</span></p>
+      <p class="rule-line">Length ........... <span>≥ 650 mm (25.6 in) — must be above 650 mm</span></p>
+      <p class="rule-line">Body diameter .... <span>≥ 47 mm outside diameter</span></p>
+      <p class="rule-line">Staging .......... <span>single stage only</span></p>
+      <p class="rule-line">Recovery ......... <span>must come down in one piece</span></p>
+      <p class="rule-line">Motor retention .. <span>positive retention method required (screw-on)</span></p>
+    </div>
+    <p class="pb-text">
+      Beyond structural rules, the scoring is based on achieving a target altitude within the tightest possible margin — meaning simulation accuracy directly correlates to competition score.
+    </p>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Design Notebook</p>
+    <h2 class="pb-heading">Fin geometry exploration</h2>
+    <p class="pb-text">
+      Early in the design phase, the team systematically explored multiple fin geometries to understand the aerodynamic tradeoffs. Fin shape affects both drag (which limits altitude) and stability margin (which determines whether the rocket flies straight). The design notebook captures this process.
+    </p>
+
+    <div class="img-full">
+      <img src="image.webp" alt="Engineering notebook showing hand-drawn fin geometry sketches and ARC design requirements">
+      <p class="img-cap">// Design notebook — fin geometry iterations (rectangular, trapezoidal, swept, clipped delta) and ARC constraint notes</p>
+    </div>
+
+    <p class="pb-text">
+      Fin shapes evaluated include rectangular, trapezoidal (standard and modified), swept, and clipped delta configurations. Each has different planform area, center-of-pressure location, and drag coefficient. The notebook also records the ARC constraint checklist used to verify each candidate design before committing to simulation.
+    </p>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Engineering Process</p>
+    <h2 class="pb-heading">Simulation → CAD → Build → Launch</h2>
+    <div class="design-steps">
+      <div class="design-step">
+        <p class="step-num">01</p>
+        <div>
+          <p class="step-title">Flight Simulation (RocketSim)</p>
+          <p class="step-body">Used RocketSim software to model rocket geometry, input motor thrust curves, and simulate flight trajectories. Iterated fin span, root/tip chord lengths, and body tube length to dial in the target apogee. Simulated across multiple motor candidates to find the best altitude-to-mass tradeoff.</p>
+        </div>
+      </div>
+      <div class="design-step">
+        <p class="step-num">02</p>
+        <div>
+          <p class="step-title">CAD Modeling</p>
+          <p class="step-body">Translated the finalized geometry into 3D CAD models to verify part dimensions before cutting. CAD allowed precise checking of body tube length, nosecone profile, and fin attachment geometry, catching fitment issues before any physical material was cut.</p>
+        </div>
+      </div>
+      <div class="design-step">
+        <p class="step-num">03</p>
+        <div>
+          <p class="step-title">Motor Selection & Mass Budget</p>
+          <p class="step-body">Evaluated multiple Estes and similar commercial motor designations (e.g., C6-5, D12-5) based on total impulse, thrust duration, and delay timing. Balanced motor impulse against the 650g mass constraint, including propellant weight. Delay timing was selected to deploy the recovery system near apogee.</p>
+        </div>
+      </div>
+      <div class="design-step">
+        <p class="step-num">04</p>
+        <div>
+          <p class="step-title">Physical Construction</p>
+          <p class="step-body">Built the airframe from cardboard body tubes, balsa fin stock, and a plastic nosecone. Fins were sanded to a symmetric airfoil profile and epoxied with reinforcing fillets. Motor mount was secured with a positive screw-on retention clip per ARC regulations. Shock cord and parachute recovery system assembled to return the rocket in one piece.</p>
+        </div>
+      </div>
+      <div class="design-step">
+        <p class="step-num">05</p>
+        <div>
+          <p class="step-title">Launch Day</p>
+          <p class="step-body">Conducted live launches at a Fayetteville field site. Verified stability visually on the pad, confirmed motor retention, and executed launch using an electric igniter. Collected flight data and compared actual altitude (via altimeter) against RocketSim predictions to validate simulation accuracy.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Build photos</p>
+    <h2 class="pb-heading">Team workspace & hardware</h2>
+    <div class="img-grid-2">
+      <div>
+        <img src="image__1_.webp" alt="Rocketry team working at a classroom table with components">
+        <p class="img-cap">// Team workspace — build session with airframe components</p>
+      </div>
+      <div>
+        <img src="image__2_.webp" alt="Rocket on launch pad ready for flight">
+        <p class="img-cap">// Launch pad — rocket staged and ready for ignition</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pb-section">
+    <p class="pb-label">Technical Skills</p>
+    <div class="tech-tags">
+      <span class="tech-tag">RocketSim</span><span class="tech-tag">CAD</span><span class="tech-tag">Fin Geometry</span><span class="tech-tag">Motor Selection</span><span class="tech-tag">Thrust Curves</span><span class="tech-tag">Stability Margin</span><span class="tech-tag">Mass Budget</span><span class="tech-tag">ARC Rules</span><span class="tech-tag">Recovery Systems</span><span class="tech-tag">Altimetry</span>
+    </div>
+  </div>
+
+  <a class="back-link" href="index.html">← Back to portfolio</a>
+</div>
+
+<footer>
+  <p class="footer-copy">Andrew Smith · Project P.03 · American Rocketry Challenge</p>
+  <div class="footer-dot"></div>
+</footer>
+</body>
+</html>
